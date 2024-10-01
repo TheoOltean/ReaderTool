@@ -1,0 +1,18 @@
+.highlight-menu {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    z-index: 9999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  
+  .highlight-menu div {
+    cursor: pointer;
+    padding: 2px 0;
+  }
+  
+  .highlight-menu div:hover {
+    background-color: #f0f0f0;
+  }
+  
