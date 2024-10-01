@@ -1,11 +1,25 @@
 {
     "manifest_version": 3,
-    "name": "Reader Tool",
+    "name": "Highlight Menu Extension",
     "version": "1.0",
-    "description": "Great Extension",
-    "action": {
-        "default_popup" : "popup.html",
-        "default_icon" : "icons/icon16.png"
+    "description": "Creates a menu next to highlighted words.",
+    "permissions": [
+      "contextMenus",
+      "storage",
+      "activeTab",
+      "scripting"
+    ],
+    "background": {
+      "service_worker": "background.js"
     },
-    "options_page": "options.html"
-}
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"]
+      }
+    ]
+  }
+  

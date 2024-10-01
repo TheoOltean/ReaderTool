@@ -15,3 +15,26 @@ function handleDomLoaded()
 
 document.addEventListener('DOMContentLoaded', handleDomLoaded)
 
+// popup.js
+
+const toggleButton = document.getElementById("toggleButton");
+
+// Set the initial button text based on the extension's state
+chrome.storage.sync.get("extensionEnabled", (data) => {
+  updateButtonText(data.extensionEnabled);
+});
+
+// Toggle the extension's enabled state when the button is clicked
+toggleButton.addEventListener("click", () => {
+  chrome.storage.sync.get("extensionEnabled", (data) => {
+    const newState = !data.extensionEnabled;
+    chrome.storage.sync.set({ extensionEnabled: newState }, () => {
+      updateButtonText(newState);
+    });
+  });
+});
+
+// Update the button text
+function updateButtonText(isEnabled) {
+  toggleButton.textContent = isEnabled ? "Turn Off Extension" : "Turn On Extension";
+}

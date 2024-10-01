@@ -1,43 +1,56 @@
-import { getDocument } from './pdfLib/pdf.mjs';
-import * as pdfLib from '/pdfLib/pdf.mjs';
-import * as pdfWorkerLib from '/pdfLib/pdf.Worker.mjs';
+// content.js
 
-function handleMessage(message, sender, sendResponse)
-{
-    if (message.action === 'extract' && message.tabId)
-    {
-        chrome.scripting.executeScript({
-            target : {tabId : message.tabId},
-            func : extractPdfContent,
-        });
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "showHighlightMenu") {
+      showHighlightMenu();
     }
-}
-chrome.runtime.onMessage.addListener(handleMessage)
-
-function extractPdfContent()
-{
-    const pdfUrl = window.location.href;
-    if(pdfUrl.endsWith('.pdf'))
-    {
-        fetch(pdfUrl).then(response => response.arrayBuffer()).then(data => {
-            const pdfData = new Uint8Array(data);
-            pdfjsLib.getDocument({data : pdfData}).promise.then(pdf => {
-                let extractedText = '';
-                for(let i = 0; i <pdf.numPages; i++)
-                {
-                    pdf.getPage(i).then(page => {
-                        page.getTextContent().then(textContent => {
-                            let text = '';
-                            for(let i = 0; textContent.items.length; i++)
-                            {
-                                text = text +  '' + textContent.items[i].str;
-                            }
-                            return text;
-                        });
-                    });
-                }
-            });
-        });
-        console.log('Extracted PDF:', text);
+  });
+  
+  function showHighlightMenu() {
+    // Get the selected text range
+    const selection = window.getSelection();
+    if (selection.rangeCount === 0) return;
+  
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+  
+    // Create the menu div
+    const menuDiv = document.createElement("div");
+    menuDiv.style.position = "absolute";
+    menuDiv.style.left = `${rect.left + window.scrollX}px`;
+    menuDiv.style.top = `${rect.bottom + window.scrollY}px`;
+    menuDiv.style.backgroundColor = "#fff";
+    menuDiv.style.border = "1px solid #ccc";
+    menuDiv.style.padding = "5px";
+    menuDiv.style.zIndex = "9999";
+    menuDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+  
+    // Add multiple lines to the menu
+    const lines = ["Definition", "Explain", "Symbol"];
+    lines.forEach(line => {
+      const lineDiv = document.createElement("div");
+      lineDiv.textContent = line;
+      lineDiv.style.cursor = "pointer";
+      lineDiv.style.padding = "2px 0";
+      lineDiv.addEventListener("click", () => {
+        alert(`You clicked ${line}`);
+        document.body.removeChild(menuDiv);
+      });
+      menuDiv.appendChild(lineDiv);
+    });
+  
+    // Close the menu when clicking outside
+    function handleClickOutside(event) {
+      if (!menuDiv.contains(event.target)) {
+        if (menuDiv.parentNode) {
+          menuDiv.parentNode.removeChild(menuDiv);
+        }
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
     }
-}
+    document.addEventListener("mousedown", handleClickOutside);
+  
+    document.body.appendChild(menuDiv);
+  }
+  
